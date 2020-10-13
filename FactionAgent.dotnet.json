@@ -1,7 +1,7 @@
 {
-  "Name": "Marauder",
+  "Name": "Marauder-development",
   "Authors": [
-    "The Faction Team"
+    "DaWoschbar"
   ],
   "Guid": "0000-0000-0001-FEED-ACDC",
   "OperatingSystems": [
@@ -61,6 +61,13 @@
       "Name": "exit",
       "Description": "Kills the Marauder agent",
       "Help": "Tasks Marauder to exit.",
+      "OpsecSafe": "True",
+      "Parameters": []
+    },
+    {
+      "Name": "MakeScreenshot",
+      "Description": "Creates a screenshot of the current users desktop. Will be executed once the agents is started.",
+      "Help": "Creates a screenshot of the current monitor.",
       "OpsecSafe": "True",
       "Parameters": []
     }
